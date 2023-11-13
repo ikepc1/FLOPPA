@@ -85,6 +85,13 @@ def waiting_for_timeout(start_time, timeout_time = 10):
     '''
     return (utime.time() - start_time) < timeout_time
 
+def write_msg_log(msg):
+    '''This function writes the response from the flasher module to the
+    file recent_response_log.txt
+    '''
+    with open('recent_response_log.txt', 'w') as log_file:
+        log_file.write(str(msg) + ' \n')
+
 class FlasherOperation:
     '''This is the interface class for point to point communication 
     between flasher controllers in the field. Subclasses need to define
@@ -124,10 +131,10 @@ class FlasherOperation:
         received, it decodes the command and excecutes it.
         '''
         start_time = utime.time()
-        Display().display_text('Listening...')
+        #Display().display_text('Listening...')
         msg = {'msg':'NOMESSAGE'}
         lora = LoRa()
-        while self.waiting_for_msg(msg) and waiting_for_timeout(start_time):
+        while self.waiting_for_msg(msg) and waiting_for_timeout(start_time, MSG_TIMEOUT):
             msg = lora.listen()
         self.decode_cmd(msg)
 
@@ -147,6 +154,7 @@ class FlasherOperation:
         command = self.get_command_obj(msg)
         print(command)
         command.excecute(msg)
+        write_msg_log(msg)
         print('cmd excecuted')
             
     def listen_for_time(self, time):

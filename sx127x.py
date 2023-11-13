@@ -117,8 +117,8 @@ class SX127x:
             re_try = re_try + 1
             if version != 0:
                 init_try = False
-        if version != 0x12:
-            raise Exception('Invalid version.')
+        # ~ if version != 0x12:
+            # ~ raise Exception('Invalid version.')
 
         if __DEBUG__:
             print("SX version: {}".format(version))
