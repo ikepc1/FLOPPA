@@ -107,11 +107,14 @@ class FlasherOperation:
         a transmission payload'''
         return {'msg': cmd}
     
-    def send_cmd(self, cmd):
+    def send_cmd(self, cmd, **kwargs):
         '''This method sends a command over LORA, then listens for a 
         response command.
         '''
-        command = self.create_cmd_msg(cmd)
+        command = {'msg': cmd}
+        if kwargs:
+            for key in kwargs:
+                command[key] = kwargs[key]
         print(command)
         LoRa().send(command)
         self.listen_for_cmd()

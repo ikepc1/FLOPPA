@@ -1,6 +1,5 @@
 from machine import Pin, ADC, reset
 from time import sleep
-import utime
 from display import Display
 import json
 from LoRa import LoRa, Command, FlasherOperation
@@ -85,7 +84,7 @@ class Voltage(Command):
         and battery 2 voltage (batt2)
         '''
         #return {'msg':'VOLTAGE','SOLAR':sol, 'BATT1':batt1, 'BATT2':batt2}
-        return {'msg':'VOLTAGE','SOLAR':sol, 'BATT1':batt1}
+        return {'msg':'VOLTAGE','SOLA(1)R':sol, 'BATT1':batt1}
         
     def excecute(self, msg):
         '''This is the implementation of the excecute method for the voltage command.
@@ -97,7 +96,25 @@ class Voltage(Command):
         LoRa().send(voltages)
         print('voltage msg sent')
         
-	
+class FlashFlasher(Command):
+    '''This is the procedure for flashing the flasher.
+    '''
+        
+    def excecute(self, msg):
+        '''This is the implementation of the excecute command for FlashFlasher.
+        '''
+        #self.display_on_lcd(msg)
+        flpin = RelayON(relay_pins['flasher_pin']).relay
+        hvpin = RelayON(relay_pins['hv_pin']).relay
+        flpin.value(0)
+        sleep(.5)
+        hvpin.value(0)
+        sleep(msg['time'])
+        hvpin.value(1)
+        sleep(.5)
+        flpin.value(1)
+        LoRa().send({'msg':'FLASH_FLASHER'})
+    
     
 class InvalidMessage(Command):
     '''This is the implementation of the invalid message command.
@@ -117,6 +134,7 @@ class FlasherOperationRec(FlasherOperation):
             'FLASHER_OFF':RelayOFF(relay_pins['flasher_pin']),
             'FLASHER_FIRE':RelayON(relay_pins['hv_pin']),
             'FLASHER_CEASEFIRE':RelayOFF(relay_pins['hv_pin']),
+            'FLASH_FLASHER': FlashFlasher(),
             'BATT1_ON':RelayOFF(relay_pins['batt1_pin']),
             'BATT1_OFF':RelayON(relay_pins['batt1_pin']),
             'BATT2_ON':RelayOFF(relay_pins['batt2_pin']),
@@ -135,6 +153,6 @@ class FlasherOperationRec(FlasherOperation):
         self.solar_pin.value(1)
         self.batt1_pin.value(1)
         self.batt2_pin.value(1)
-        #self.display = Display()
-        #self.display.display_text('Flasher active')
+        # self.display = Display()
+        # self.display.display_text('Flasher active')
         print('Flasher active')

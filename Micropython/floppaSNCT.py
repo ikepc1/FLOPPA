@@ -48,16 +48,23 @@ class Voltage(Command):
         with open('recent_voltage.txt', 'w') as voltage_file:
             #voltage_file.write('Solar: {} Battery1: {} Battery2: {} \n'.format(solar,batt1,batt2))
             voltage_file.write('Solar: {} Battery1: {} rssi: {} \n'.format(solar,batt1,rssi))
-        
+
+class FlashFlasher(Command):    
+    def excecute(self, msg):
+        self.display_on_lcd(msg)
+        write_flasher_log(msg)
+        print(msg)        
         
 class NoMessage(Command):
     def excecute(self, msg):
         self.display_on_lcd(msg)
+        write_flasher_log(msg)
         print(msg)
         
 class InvalidMessage(Command):
     def excecute(self, msg):
         self.display_on_lcd(msg)
+        write_flasher_log(msg)
         print(msg)
     
 class FlasherOperationSNCT(FlasherOperation):
@@ -67,6 +74,7 @@ class FlasherOperationSNCT(FlasherOperation):
     cmds = {'RELAY_ON':RelayON(),
             'RELAY_OFF':RelayOFF(),
             'VOLTAGE':Voltage(),
+            'FLASH_FLASHER':FlashFlasher(),
             'NOMESSAGE':NoMessage()
             }
     def __init__(self):

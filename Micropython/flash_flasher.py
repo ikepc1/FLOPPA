@@ -1,8 +1,5 @@
-from floppaSNCT import *
-from time import sleep        
+from floppaSNCT import FlasherOperationSNCT
+cmd = 'FLASH_FLASHER'
 
 fl = FlasherOperationSNCT()
-fl.send_cmd('FLASHER_ON')
-sleep(1)
-fl.send_cmd('FLASHER_OFF')
-sleep(1)
+#fl.send_cmd('FLASH_FLASHER')

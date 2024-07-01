@@ -65,20 +65,29 @@ def test_voltages() -> None:
 		# with open(voltage_file_path,'a') as voltage_file:
 			# voltage_file.write('time: ' + current_time + ' ' + vs)
 
+# def flash_flasher(ontime_secs: int = FLASH_TIME) -> None:
+	# '''This function sends the command to turn the flasher on, then off 
+	# after the configured ontime.
+	# '''
+	
+	# run_pyscript_rshell('flasher_on')
+	# sleep(5)
+	# write_to_logfile('recent_response_log.txt', 'response_logs.txt')
+	# run_pyscript_rshell('flasher_fire')
+	# sleep(ontime_secs)
+	# write_to_logfile('recent_response_log.txt', 'response_logs.txt')
+	# run_pyscript_rshell('flasher_ceasefire')
+	# sleep(ontime_secs)
+	# write_to_logfile('recent_response_log.txt', 'response_logs.txt')
+	# run_pyscript_rshell('flasher_off')
+	# sleep(5)
+	# write_to_logfile('recent_response_log.txt', 'response_logs.txt')
+	
 def flash_flasher(ontime_secs: int = FLASH_TIME) -> None:
 	'''This function sends the command to turn the flasher on, then off 
 	after the configured ontime.
 	'''
-	
-	run_pyscript_rshell('flasher_on')
-	sleep(5)
-	write_to_logfile('recent_response_log.txt', 'response_logs.txt')
-	run_pyscript_rshell('flasher_fire')
-	sleep(ontime_secs)
-	write_to_logfile('recent_response_log.txt', 'response_logs.txt')
-	run_pyscript_rshell('flasher_ceasefire')
-	sleep(ontime_secs)
-	write_to_logfile('recent_response_log.txt', 'response_logs.txt')
-	run_pyscript_rshell('flasher_off')
-	sleep(5)
+	cmd = f"rshell -p {PORT} repl pyboard 'import flash_flasher ~ flash_flasher.fl.send_cmd(flash_flasher.cmd,time={ontime_secs})'~"
+	os.system(cmd)
+	sleep(10)
 	write_to_logfile('recent_response_log.txt', 'response_logs.txt')
