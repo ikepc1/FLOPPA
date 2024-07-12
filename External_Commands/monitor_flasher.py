@@ -1,4 +1,4 @@
-import external_commands as e
+from external_commands import test_voltages
 
-while True:
-	e.test_voltages('/dev/ttyACM0')
+test_voltages()
+

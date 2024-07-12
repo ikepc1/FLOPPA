@@ -11,7 +11,7 @@ def run_pyscript_rshell(script: str) -> None:
 	script: name of the script (string)
 	port: name of the port the esp32 is connected to (string)
 	'''
-	cmd = f'rshell -p {PORT} repl pyboard import {script}~'
+	cmd = f'rshell -p {PORT} --quiet repl pyboard import {script}~'
 	os.system(cmd)
 	
 def copy_file_from_esp(filename: str) -> None:
@@ -21,7 +21,7 @@ def copy_file_from_esp(filename: str) -> None:
 	port: name of the port the esp32 is connected to (string)
 	'''
 	target_path = Path(FLOPPA_DIR) / filename
-	os.system(f'rshell -p {PORT} cp /pyboard/{filename} {str(target_path)}')
+	os.system(f'rshell -p {PORT} --quiet cp /pyboard/{filename} {str(target_path)}~')
 
 def write_to_logfile(filename_from_esp: str, log_filename: str) -> None:
 	'''This is a generic function which appends the info copied from the 
@@ -34,6 +34,7 @@ def write_to_logfile(filename_from_esp: str, log_filename: str) -> None:
 	log_file_path = parent / log_filename
 	with esp_file_path.open('r') as esp_file:
 		data = esp_file.readlines()[0]
+		print(data)
 		with log_file_path.open('a') as log_file:
 			log_file.write('time: ' + current_time + ' ' + data)
 
@@ -43,10 +44,9 @@ def test_voltages() -> None:
 	its storage.
 	'''
 	run_pyscript_rshell('query_voltage')
-	sleep(15)
+	sleep(10)
 	write_to_logfile('recent_response_log.txt', 'response_logs.txt')
-	write_to_logfile('recent_voltage.txt', 'voltages.txt')
-	
+	#write_to_logfile('recent_voltage.txt', 'voltages.txt')
 
 # def test_voltages() -> None:
 	# '''This function queries the voltages at the remote site, transfers
