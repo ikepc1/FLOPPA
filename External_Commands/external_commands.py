@@ -21,7 +21,7 @@ def copy_file_from_esp(filename: str) -> None:
 	port: name of the port the esp32 is connected to (string)
 	'''
 	target_path = Path(FLOPPA_DIR) / filename
-	os.system(f'rshell -p {PORT} --quiet cp /pyboard/{filename} {str(target_path)}~')
+	os.system(f'rshell -p {PORT} --quiet cp /pyboard/{filename} {str(target_path)}')
 
 def write_to_logfile(filename_from_esp: str, log_filename: str) -> None:
 	'''This is a generic function which appends the info copied from the 
