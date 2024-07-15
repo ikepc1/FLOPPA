@@ -89,5 +89,5 @@ def flash_flasher(ontime_secs: int = FLASH_TIME) -> None:
 	'''
 	cmd = f"rshell -p {PORT} repl pyboard 'import flash_flasher ~ flash_flasher.fl.send_cmd(flash_flasher.cmd,time={ontime_secs})'~"
 	os.system(cmd)
-	sleep(10)
+	sleep(ontime_secs + 5)
 	write_to_logfile('recent_response_log.txt', 'response_logs.txt')

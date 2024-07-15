@@ -12,16 +12,19 @@ class InclineFlasherTCPHandler(socketserver.BaseRequestHandler):
     override the handle() method to implement communication to the
     client.
     """
-    cmds = {'FLASH':flash_flasher,
-            'VOLTAGE':test_voltages}
-    
+    cmds = {b'FLASH':flash_flasher,
+            b'VOLTAGE':test_voltages}
+    @property
+    def cmd_ids(self) -> str:
+        return ' '.join([str(key,'utf-8') for key in self.cmds])
+
     def get_response(self) -> str:
         '''This function reads the most recent response from the flasher.
         '''
         recent_response = Path(FLOPPA_DIR) / 'response_logs.txt'
         with recent_response.open() as openfile:
             response = openfile.readlines()[-1]
-        return response
+        return response+'\n'
 
     def handle(self) -> None:
         ''' This function 
@@ -30,15 +33,21 @@ class InclineFlasherTCPHandler(socketserver.BaseRequestHandler):
         self.data = self.request.recv(1024).strip()
         print("Received from {}:".format(self.client_address[0]))
         print(self.data)
-        self.cmds[self.data]()
+        try:
+            self.cmds[self.data]()
+            self.request.sendall(bytes(self.get_response(),'utf-8'))
+        except KeyError:
+            resp = f"{str(self.data,'utf-8')}: unrecognized command\nPossible commands: {self.cmd_ids}\n"
+            self.request.sendall(bytes(resp,'utf-8'))
         # send back the flasher response
-        self.request.sendall(self.get_response())
+        #self.request.sendall(bytes(self.get_response(),'utf-8'))
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 9999
+    HOST, PORT = "0.0.0.0", 9999
 
     # Create the server, binding to localhost on port 9999
     with socketserver.TCPServer((HOST, PORT), InclineFlasherTCPHandler) as server:
         # Activate the server; this will keep running until you
         # interrupt the program with Ctrl-C
         server.serve_forever()
+
