@@ -44,7 +44,7 @@ class InclineFlasherTCPHandler(socketserver.BaseRequestHandler):
             if k == "msg":
                 formatted_response += str(v).split("_")[0]
             else:
-                formatted_response += " " + now + " " k.lower() + " " + str(v) + " "
+                formatted_response += " " + now + " " + k.lower() + " " + str(v) + " "
         return formatted_response
 
     def handle(self) -> None:
