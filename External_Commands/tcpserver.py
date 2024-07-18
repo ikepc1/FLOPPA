@@ -2,7 +2,6 @@ import socketserver
 from pathlib import Path
 from datetime import datetime
 import ast
-import re
 
 from config import FLOPPA_DIR
 from external_commands import flash_flasher, test_voltages
@@ -23,7 +22,8 @@ class InclineFlasherTCPHandler(socketserver.BaseRequestHandler):
     def cmd_ids(self) -> str:
         return ' '.join([str(key,'utf-8') for key in self.cmds])
 
-    def get_response(self) -> str:
+    @staticmethod
+    def get_response() -> str:
         '''This function reads the most recent response from the flasher.
         '''
         recent_response = Path(FLOPPA_DIR) / 'response_logs.txt'
@@ -31,24 +31,26 @@ class InclineFlasherTCPHandler(socketserver.BaseRequestHandler):
             response = openfile.readlines()[-1]
         return response+'\n'
 
-    def format_response(self, response: str) -> str:
+    def format_response(self, command: str, response: str) -> str:
         ''' This function reformats the response string to be human-readable.
             Adds UTC ISO 8601 time stamp.
         '''
         formatted_response = ""
         now = datetime.utcnow().replace(microsecond=0).isoformat(' ')
-        response_dict = ast.literal_eval(re.search('({.+})', response).group(0))
+        response_dict = ast.literal_eval(response)
         for k, v in response_dict.items():
             if k == "SOL(1)R":
                 k = "SOLAR"
-            if k == "msg":
-                formatted_response += str(v).split("_")[0]
+            if k == "time":
+                continue
+            elif k == "msg":
+                formatted_response += command + " " + now
             else:
-                formatted_response += " " + now + " " + k.lower() + " " + str(v) + " "
+                formatted_response += " " + k.lower() + " " + str(v)
         return formatted_response
 
     def handle(self) -> None:
-        ''' This function 
+        ''' This function handles the request and response between TCP server and client.
         '''
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip()
@@ -56,7 +58,7 @@ class InclineFlasherTCPHandler(socketserver.BaseRequestHandler):
         print(self.data)
         try:
             self.cmds[self.data]()
-            self.request.sendall(bytes(self.formatted_response(self.get_response()),'utf-8'))
+            self.request.sendall(bytes(self.format_response(self.data, self.get_response()),'utf-8'))
         except KeyError:
             resp = f"{str(self.data,'utf-8')}: unrecognized command\nPossible commands: {self.cmd_ids}\n"
             self.request.sendall(bytes(resp,'utf-8'))
