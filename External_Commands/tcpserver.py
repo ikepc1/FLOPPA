@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 import ast
 
-from config import FLOPPA_DIR
+from config import FLOPPA_DIR, FLASH_TIME
 from external_commands import flash_flasher, test_voltages
 
 class InclineFlasherTCPHandler(socketserver.BaseRequestHandler):
@@ -39,26 +39,35 @@ class InclineFlasherTCPHandler(socketserver.BaseRequestHandler):
         now = datetime.utcnow().replace(microsecond=0).isoformat(' ')
         response_dict = ast.literal_eval(response)
         for k, v in response_dict.items():
-            if k == "SOL(1)R":
+            if k == "SOLA(1)R":
                 k = "SOLAR"
             if k == "time":
                 continue
             elif k == "msg":
-                formatted_response += command + " " + now
+                formatted_response += str(command) + " " + now
             else:
                 formatted_response += " " + k.lower() + " " + str(v)
-        return formatted_response
+        return formatted_response + "\n"
 
     def handle(self) -> None:
         ''' This function handles the request and response between TCP server and client.
         '''
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip()
+        cmd_list = self.data.split(b' ')
         print("Received from {}:".format(self.client_address[0]))
         print(self.data)
+        if len(cmd_list) > 1:
+            args = [int(arg) for arg in cmd_list[1:]]
+        elif cmd_list[0] == b'FLASH':
+            args = [FLASH_TIME]
+            cmd_list.append(bytes(str(FLASH_TIME), 'utf-8'))
+        else:
+            args = []
         try:
-            self.cmds[self.data]()
-            self.request.sendall(bytes(self.format_response(self.data, self.get_response()),'utf-8'))
+            self.cmds[cmd_list[0]](*args)
+            resp = self.format_response(' '.join([c.decode('utf-8') for c in cmd_list]), self.get_response())
+            self.request.sendall(bytes(resp,'utf-8'))
         except KeyError:
             resp = f"{str(self.data,'utf-8')}: unrecognized command\nPossible commands: {self.cmd_ids}\n"
             self.request.sendall(bytes(resp,'utf-8'))
