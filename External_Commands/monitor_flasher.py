@@ -1,4 +1,8 @@
-from external_commands import test_voltages
+import os
+import time
 
-test_voltages()
+from config import TCPPORT, MONITORING_INTERVAL
 
+while True:
+    os.system(f'echo VOLTAGE | nc localhost {TCPPORT}')
+    time.sleep(MONITORING_INTERVAL * 3600)
