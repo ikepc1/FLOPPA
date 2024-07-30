@@ -84,7 +84,7 @@ class Voltage(Command):
         and battery 2 voltage (batt2)
         '''
         #return {'msg':'VOLTAGE','SOLAR':sol, 'BATT1':batt1, 'BATT2':batt2}
-        return {'msg':'VOLTAGE','SOLA(1)R':sol, 'BATT1':batt1}
+        return {'msg':'VOLTAGE','SOLAR':sol, 'BATT1':batt1}
         
     def excecute(self, msg):
         '''This is the implementation of the excecute method for the voltage command.
