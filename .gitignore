@@ -1,2 +1,3 @@
 .vim
 External_Commands/*.txt
+Micropython/config.py
