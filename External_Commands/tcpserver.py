@@ -66,6 +66,8 @@ class FlashCommandParser(CommandParser):
             args = [int(arg) for arg in cmd[1:]]
         elif len(cmd) == 1:
             args = [FLASH_TIME]
+        if args[0] > 60:
+            args[0] = 60
         self.args = args
         flash_flasher(*args)
 
