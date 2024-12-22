@@ -1,3 +1,6 @@
 .vim
 External_Commands/*.txt
+External_Commands/__pycache__*
+External_Commands/flasher_data.txt
+.idea/
 Micropython/config.py
