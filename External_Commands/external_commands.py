@@ -2,6 +2,8 @@ import os
 from time import sleep
 from datetime import datetime
 from pathlib import Path
+import ast
+import re
 
 from config import FLOPPA_DIR, PORT, FLASH_TIME
 
@@ -35,8 +37,11 @@ def write_to_logfile(filename_from_esp: str, log_filename: str) -> None:
 	with esp_file_path.open('r') as esp_file:
 		data = esp_file.readlines()[0]
 		print(data)
+		datadict = ast.literal_eval(re.search('({.+})', data).group(0))
+		timedict = {'time':current_time}
 		with log_file_path.open('a') as log_file:
-			log_file.write('time: ' + current_time + ' ' + data)
+			#log_file.write('time: ' + current_time + ' ' + data)
+			log_file.write(str({**timedict,**datadict}) + '\n')
 
 def test_voltages() -> None:
 	'''This function queries the voltages at the remote site, transfers
