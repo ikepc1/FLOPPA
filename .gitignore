@@ -1,2 +1,4 @@
 .vim
 External_Commands/*.txt
+External_Commands/__pycache__*
+.idea/
